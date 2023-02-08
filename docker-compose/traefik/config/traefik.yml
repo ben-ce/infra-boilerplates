@@ -1,0 +1,53 @@
+api:
+  dashboard: true
+
+entryPoints:
+  web:
+    address: :80
+    http:
+      redirections:
+        entryPoint:
+          to: websecure
+
+  websecure:
+    address: :443
+    http:
+      middlewares:
+        - secureHeaders@file
+      tls:
+        certResolver: desecresolver
+        domains:
+          - main: domain.tld
+            sans:
+              - "*.domain.tld"
+
+pilot:
+  dashboard: false
+
+providers:
+  docker:
+    endpoint: "unix:///var/run/docker.sock"
+    exposedByDefault: false
+  file:
+    filename: /etc/traefik/config/dynamic.yml
+
+certificatesResolvers:
+  letsencrypt:
+    acme:
+      email: bence.schmehl@protonmail.com
+      storage: /etc/traefik/storage/acme.json
+      keyType: EC384
+      httpChallenge:
+        entryPoint: web
+
+  desecresolver:
+    acme:
+      email: bence.schmehl@protonmail.com
+      storage: /etc/traefik/storage/acme.json
+      keyType: EC384
+      dnsChallenge:
+        provider: desec
+        delayBeforeCheck: 20
+        resolvers:
+          - "ns1.desec.io:53"
+          - "ns2.desec.org:53"

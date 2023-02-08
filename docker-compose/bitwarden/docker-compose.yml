@@ -1,0 +1,39 @@
+version: '3.7'
+
+services:
+  bitwarden:
+    image: vaultwarden/server:latest
+    container_name: bitwarden
+    restart: unless-stopped
+    volumes:
+      - bitwarden-data:/data
+    environment:
+      - ADMIN_TOKEN=GENERATE_ADMIN_TOKEN
+      - WEBSOCKET_ENABLED=true
+      - SIGNUPS_ALLOWED=false
+      - INVITATIONS_ALLOWED=true
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=proxy"
+      # Entry Point for https
+      - "traefik.http.routers.bitwarden-secure.entrypoints=websecure"
+      - "traefik.http.routers.bitwarden-secure.rule=Host(`APP_HOSTNAME.tld`)"
+      - "traefik.http.routers.bitwarden-secure.service=bitwarden-service"
+      - "traefik.http.middlewares.bitwarden-secure=nofloc@file"
+      - "traefik.http.services.bitwarden-service.loadbalancer.server.port=80"
+      # websocket
+      - "traefik.http.routers.bitwarden-ws.entrypoints=websecure"
+      - "traefik.http.routers.bitwarden-ws.rule=Host(`APP_HOSTNAME.tld`) && Path(`/notifications/hub`)"
+      - "traefik.http.routers.bitwarden-ws.service=bitwarden-websocket"
+      - "traefik.http.middlewares.bitwarden-ws=bw-stripPrefix@file,nofloc@file"
+      - "traefik.http.services.bitwarden-websocket.loadbalancer.server.port=3012"
+
+networks:
+  proxy:
+    external: true
+      
+volumes:
+  bitwarden-data:
+    name: bitwarden-data
