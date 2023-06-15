@@ -7,12 +7,24 @@ services:
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "traefik", "healthcheck", "--ping"]
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
     ports:
       - 80:80
       - 443:443
     environment:
       - DESEC_TOKEN=YOUR_DESEC_TOKEN
     volumes:
+      # Add host time to container
       - /etc/localtime:/etc/localtime:ro
       # Provide read-only access to docker engine for traefik
       - /var/run/docker.sock:/var/run/docker.sock:ro
@@ -20,18 +32,20 @@ services:
       - ./config/traefik.yml:/etc/traefik/traefik.yml:ro
       # Add file with dynamic configuration yml
       - ./config/dynamic.yml:/etc/traefik/config/dynamic.yml
-      # Add folder with ACME account data
-      - ./storage/acme.json:/etc/traefik/storage/acme.json
+      # Add folder with ACME account data (long form works with new file)
+      - type: bind
+        source: ./storage/acme.json
+        target: /etc/traefik/storage/acme.json
     networks:
-      - proxy
+      - traefik-proxy
     labels:
       - "traefik.enable=true"
-      - "traefik.docker.network=proxy"
+      - "traefik.docker.network=traefik-proxy"
       - "traefik.http.routers.traefik-secure.entrypoints=websecure"
       - "traefik.http.routers.traefik-secure.rule=Host(`APP_HOSTNAME.tld`)"
       - "traefik.http.routers.traefik-secure.middlewares=user-auth@file,nofloc@file,xframedeny@file"
       - "traefik.http.routers.traefik-secure.service=api@internal"
 
 networks:
-  proxy:
+  traefik-proxy:
     external: true
