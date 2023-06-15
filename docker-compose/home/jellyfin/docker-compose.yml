@@ -1,0 +1,40 @@
+version: '3.8'
+services:
+  jellyfin:
+    container_name: jellyfin
+    image: jellyfin/jellyfin
+    user: 0:0
+    # Additional groups the user inside the container should be a member of:
+    # https://docs.docker.com/compose/compose-file/05-services/#group_add
+    # gid 108 on debian/ubuntu is the `render` group id so that the user can use the added renderD128 device
+    group_add:
+      - "108"
+    volumes:
+      - config:/config
+      - cache:/cache
+      - /mnt/X/Y:/Y:ro
+    devices:
+      - /dev/dri/renderD128:/dev/dri/renderD128
+    restart: 'unless-stopped'
+    # Optional - alternative address used for autodiscovery
+    environment:
+      - JELLYFIN_PublishedServerUrl=https://jellyfin.DNS.TLD
+    # Optional - may be necessary for docker healthcheck to pass if running in host network mode
+    # extra_hosts:
+    #   - "host.docker.internal:host-gateway"
+    networks:
+      - traefik-proxy
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik-proxy
+      - traefik.http.routers.jellyfin.rule=Host(`jellyfin.DNS.TLD`)
+      - traefik.http.routers.jellyfin.entrypoints=websecure
+      - traefik.http.services.jellyfin.loadbalancer.server.port=8096
+
+networks:
+  traefik-proxy:
+    external: true
+
+volumes:
+  config:
+  cache:

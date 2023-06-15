@@ -1,0 +1,41 @@
+version: "3.8"
+
+# More info at https://github.com/pi-hole/docker-pi-hole/ and https://docs.pi-hole.net/
+services:
+  pihole:
+    container_name: pihole
+    image: pihole/pihole:latest
+    restart: unless-stopped
+    environment:
+      TZ: Europe/Budapest
+      VIRTUAL_HOST: pihole.domain.tld
+      # Use docker service name to setup upstream DNS servers
+      PIHOLE_DNS_: unbound
+      # WEBPASSWORD: 'set a secure password here or it will be random'
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+    ports:
+      - 53:53/tcp
+      - 53:53/udp
+    networks:
+      - traefik-proxy
+    # Volumes store your data between container upgrades
+    volumes:
+      - ./etc-pihole:/etc/pihole
+      - ./etc-dnsmasq.d:/etc/dnsmasq.d
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik-proxy
+      - traefik.http.routers.pihole.rule=Host(`pihole.domain.tld`)
+      - traefik.http.routers.pihole.entrypoints=websecure
+      - traefik.http.services.pihole.loadbalancer.server.port=80
+      - traefik.http.middlewares.pihole-admin.addprefix.prefix="/admin"
+
+networks:
+  traefik-proxy:
+    external: true
+  dns:
+    external: true

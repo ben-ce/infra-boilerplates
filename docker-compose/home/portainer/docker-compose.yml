@@ -1,0 +1,45 @@
+version: "3.8"
+
+services:
+  portainer:
+    container_name: portainer-ce
+    image: portainer/portainer-ce:latest
+    command: -H unix:///var/run/docker.sock
+    restart: always
+    healthcheck: 
+      test: ['CMD', 'wget', '--spider', 'localhost:9000'] 
+      interval: 30s
+      timeout: 30s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 256M
+    networks:
+      - traefik-proxy
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+    labels:
+      # Frontend
+      - traefik.enable=true
+      - traefik.docker.network=traefik-proxy
+      - traefik.http.routers.frontend.rule=Host(`portainer.domain.tld`)
+      - traefik.http.routers.frontend.entrypoints=websecure
+      - traefik.http.routers.frontend.service=frontend
+      - traefik.http.services.frontend.loadbalancer.server.port=9000
+      
+      # Edge
+      - traefik.http.routers.edge.rule=Host(`edge.domain.tld`)
+      - traefik.http.routers.edge.entrypoints=websecure
+      - traefik.http.routers.edge.service=edge
+      - traefik.http.services.edge.loadbalancer.server.port=8000
+
+networks:
+  traefik-proxy:
+    external: true
+
+volumes:
+  portainer_data:
