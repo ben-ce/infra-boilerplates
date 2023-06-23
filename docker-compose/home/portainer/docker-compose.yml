@@ -1,3 +1,4 @@
+---
 version: "3.8"
 
 services:
@@ -6,8 +7,8 @@ services:
     image: portainer/portainer-ce:latest
     command: -H unix:///var/run/docker.sock
     restart: always
-    healthcheck: 
-      test: ['CMD', 'wget', '--spider', 'localhost:9000'] 
+    healthcheck:
+      test: ['CMD', 'wget', '--spider', 'localhost:9000']
       interval: 30s
       timeout: 30s
       retries: 3
@@ -30,7 +31,7 @@ services:
       - traefik.http.routers.frontend.entrypoints=websecure
       - traefik.http.routers.frontend.service=frontend
       - traefik.http.services.frontend.loadbalancer.server.port=9000
-      
+
       # Edge
       - traefik.http.routers.edge.rule=Host(`edge.domain.tld`)
       - traefik.http.routers.edge.entrypoints=websecure
@@ -42,4 +43,4 @@ networks:
     external: true
 
 volumes:
-  portainer_data:
+  data:
