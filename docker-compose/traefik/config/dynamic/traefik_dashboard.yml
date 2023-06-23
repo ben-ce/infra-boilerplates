@@ -1,0 +1,8 @@
+---
+http:
+  middlewares:
+    # we use this on the dashboard to authenticate
+    user-auth:
+      basicAuth:
+        users:
+          - "admin:$password_hash"

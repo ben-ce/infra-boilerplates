@@ -1,0 +1,8 @@
+---
+http:
+  middlewares:
+    bw-stripPrefix:
+      stripPrefix:
+        prefixes:
+          - "/notifications/hub"
+        forceSlash: false

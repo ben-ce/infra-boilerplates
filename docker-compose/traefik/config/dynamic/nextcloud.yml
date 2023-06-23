@@ -1,0 +1,12 @@
+---
+http:
+  middlewares:
+    nextcloud-header:
+      headers:
+        referrerPolicy: "no-referrer"
+        contentTypeNosniff: true
+        customFrameOptionsValue: "SAMEORIGIN"
+        customRequestHeaders:
+          X-Forwarded-Proto: https
+        customResponseHeaders:
+          X-Robots-Tag: "none"

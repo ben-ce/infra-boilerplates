@@ -1,0 +1,17 @@
+---
+http:
+  routers:
+    nas:
+      rule: Host(`nas.domain.tld`)
+      service: nas
+      entrypoints: websecure
+  services:
+    nas:
+      loadBalancer:
+        passHostHeader: true
+        serversTransport: nas
+        servers:
+          - url: "UPSTREAM_URL"
+  serversTransports:
+    nas:
+      insecureSkipVerify: true

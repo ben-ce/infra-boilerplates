@@ -1,3 +1,4 @@
+---
 api:
   dashboard: true
 
@@ -31,7 +32,8 @@ providers:
     endpoint: "unix:///var/run/docker.sock"
     exposedByDefault: false
   file:
-    filename: /etc/traefik/config/dynamic.yml
+    directory: /etc/traefik/config/dynamic
+    watch: true
 
 certificatesResolvers:
   letsencrypt:
@@ -44,7 +46,7 @@ certificatesResolvers:
 
   desecresolver:
     acme:
-      email: bence.schmehl@protonmail.com
+      email: YOUR@EMAIL
       storage: /etc/traefik/storage/acme.json
       keyType: EC384
       dnsChallenge:

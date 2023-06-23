@@ -1,0 +1,17 @@
+---
+http:
+  routers:
+    proxmox:
+      rule: Host(`proxmox.domain.tld`)
+      service: proxmox
+      entrypoints: websecure
+  services:
+    proxmox:
+      loadBalancer:
+        passHostHeader: true
+        serversTransport: proxmox
+        servers:
+          - url: "UPSTREAM_URL"
+  serversTransports:
+    proxmox:
+      insecureSkipVerify: true

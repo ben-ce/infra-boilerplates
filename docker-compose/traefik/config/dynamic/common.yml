@@ -1,0 +1,27 @@
+---
+# Dynamic configuration
+http:
+  middlewares:
+    nofloc:
+      headers:
+        customResponseHeaders:
+          Permissions-Policy: "interest-cohort=()"
+
+    xframedeny:
+      headers:
+        frameDeny: true
+
+    secureHeaders:
+      headers:
+        browserXssFilter: true
+        contentTypeNosniff: true
+        sslRedirect: true
+        forceSTSHeader: true
+        stsIncludeSubdomains: true
+        stsPreload: false
+        stsSeconds: 31536000
+
+tls:
+  options:
+    default:
+      minVersion: VersionTLS13

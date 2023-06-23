@@ -4,7 +4,7 @@ version: "3.8"
 services:
   portainer:
     container_name: portainer-ce
-    image: portainer/portainer-ce:latest
+    image: portainer/portainer-ce:alpine
     command: -H unix:///var/run/docker.sock
     restart: always
     healthcheck:
@@ -22,21 +22,21 @@ services:
       - traefik-proxy
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - portainer_data:/data
+      - data:/data
     labels:
       # Frontend
       - traefik.enable=true
       - traefik.docker.network=traefik-proxy
-      - traefik.http.routers.frontend.rule=Host(`portainer.domain.tld`)
-      - traefik.http.routers.frontend.entrypoints=websecure
-      - traefik.http.routers.frontend.service=frontend
-      - traefik.http.services.frontend.loadbalancer.server.port=9000
+      - traefik.http.routers.portainer-web.rule=Host(`portainer.domain.tld`)
+      - traefik.http.routers.portainer-web.entrypoints=websecure
+      - traefik.http.services.portainer-web.loadbalancer.server.port=9000
+      - traefik.http.routers.portainer-web.service=portainer-web
 
       # Edge
-      - traefik.http.routers.edge.rule=Host(`edge.domain.tld`)
-      - traefik.http.routers.edge.entrypoints=websecure
-      - traefik.http.routers.edge.service=edge
-      - traefik.http.services.edge.loadbalancer.server.port=8000
+      - traefik.http.routers.portainer-edge.rule=Host(`edge.domain.tld`)
+      - traefik.http.routers.portainer-edge.entrypoints=websecure
+      - traefik.http.services.portainer-edge.loadbalancer.server.port=8000
+      - traefik.http.routers.portainer-edge.service=portainer-edge
 
 networks:
   traefik-proxy:

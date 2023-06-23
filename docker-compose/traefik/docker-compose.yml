@@ -11,7 +11,7 @@ services:
     security_opt:
       - no-new-privileges:true
     healthcheck:
-      test: ["CMD", "traefik", "healthcheck", "--ping"]
+      test: ['CMD', 'traefik', 'healthcheck', '--ping']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -24,6 +24,8 @@ services:
     ports:
       - 80:80
       - 443:443
+    networks:
+      - traefik-proxy
     volumes:
       # Add host time to container
       - /etc/localtime:/etc/localtime:ro
@@ -32,13 +34,11 @@ services:
       # Mount file with static traefik configuration
       - ./config/traefik.yml:/etc/traefik/traefik.yml:ro
       # Add file with dynamic configuration yml
-      - ./config/dynamic.yml:/etc/traefik/config/dynamic.yml
+      - ./config/dynamic:/etc/traefik/config/dynamic
       # Add folder with ACME account data (long form works with new file)
       - type: bind
         source: ./storage/acme.json
         target: /etc/traefik/storage/acme.json
-    networks:
-      - traefik-proxy
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=traefik-proxy"

@@ -1,0 +1,17 @@
+---
+http:
+  routers:
+    openwrt:
+      rule: Host(`fw.domain.tld`)
+      service: openwrt
+      entrypoints: websecure
+  services:
+    openwrt:
+      loadBalancer:
+        passHostHeader: true
+        serversTransport: openwrt
+        servers:
+          - url: "UPSTREAM_URL"
+  serversTransports:
+    openwrt:
+      insecureSkipVerify: true

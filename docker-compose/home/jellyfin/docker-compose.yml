@@ -1,17 +1,17 @@
 ---
-version: '3.8'
+version: "3.8"
 
 services:
   jellyfin:
     container_name: jellyfin
     image: jellyfin/jellyfin:latest
-    restart: 'unless-stopped'
+    restart: unless-stopped
     user: 0:0
     # Additional groups the user inside the container should be a member of:
     # https://docs.docker.com/compose/compose-file/05-services/#group_add
     # gid 108 on debian/ubuntu is the `render` group id so that the user can use the added renderD128 device
     group_add:
-      - "108"
+      - '108'
     devices:
       - /dev/dri/renderD128:/dev/dri/renderD128
     # Optional - alternative address used for autodiscovery
